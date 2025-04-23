@@ -28,6 +28,8 @@ class ProductController extends Controller
             'name' => 'required|string',
             'desc' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
+            'buying_price' => 'required|numeric|min:0',
+            'selling_price' => 'required|numeric|min:0',
             'images.*' => 'nullable|image|max:2048'
         ]);
 
@@ -35,6 +37,8 @@ class ProductController extends Controller
             'name' => $request->name,
             'desc' => $request->desc,
             'category_id' => $request->category_id,
+            'buying_price' => $request->buying_price,
+            'selling_price' => $request->selling_price,
         ]);
 
         if ($request->hasFile('images')) {
@@ -54,6 +58,8 @@ class ProductController extends Controller
             'name' => 'required|string',
             'desc' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
+            'buying_price' => 'required|numeric|min:0',
+            'selling_price' => 'required|numeric|min:0',
             'images.*' => 'nullable|image|max:2048'
         ]);
 
@@ -61,6 +67,8 @@ class ProductController extends Controller
             'name' => $request->name,
             'desc' => $request->desc,
             'category_id' => $request->category_id,
+            'buying_price' => $request->buying_price,
+            'selling_price' => $request->selling_price,
         ]);
 
         if ($request->hasFile('images')) {
