@@ -51,7 +51,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string',
             'desc' => 'nullable|string',
-            'image' => 'nullable|image|max:2048', // optional image
+            'image' => 'nullable|image|max:2048', 
             'category_id' => 'required|exists:categories,id',
         ]);
 
@@ -83,6 +83,6 @@ class ProductController extends Controller
 
         $product->delete();
 
-        return response()->json(['message' => 'Product deleted']);
+        return response()->json(['message' => 'Product deleted succefully']);
     }
 }
