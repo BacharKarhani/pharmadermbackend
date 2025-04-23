@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,78 +12,77 @@ class ProductController extends Controller
     // Public: list all products
     public function index()
     {
-        return Product::with('category')->get();
+        return Product::with(['category', 'images'])->get();
     }
 
     // Public: show single product
     public function show(Product $product)
     {
-        return $product->load('category');
+        return $product->load(['category', 'images']);
     }
 
-    // Admin: create product
+    // Admin: create product with multiple images
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string',
             'desc' => 'nullable|string',
-            'image' => 'nullable|image|max:2048', // optional image
             'category_id' => 'required|exists:categories,id',
+            'images.*' => 'nullable|image|max:2048'
         ]);
-
-        // Only handle image if present
-        $imagePath = $request->hasFile('image')
-            ? $request->file('image')->store('products', 'public')
-            : null;
 
         $product = Product::create([
             'name' => $request->name,
             'desc' => $request->desc,
-            'image' => $imagePath,
             'category_id' => $request->category_id,
         ]);
 
-        return response()->json($product, 201);
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('products', 'public');
+                $product->images()->create(['path' => $path]);
+            }
+        }
+
+        return response()->json($product->load('images'), 201);
     }
 
-    // Admin: update product
+    // Admin: update product and optionally add new images
     public function update(Request $request, Product $product)
     {
         $request->validate([
             'name' => 'required|string',
             'desc' => 'nullable|string',
-            'image' => 'nullable|image|max:2048', 
             'category_id' => 'required|exists:categories,id',
+            'images.*' => 'nullable|image|max:2048'
         ]);
 
-        // Update image if a new one is uploaded
-        if ($request->hasFile('image')) {
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
-            }
-            $product->image = $request->file('image')->store('products', 'public');
-        }
-
-        // Update other fields
         $product->update([
             'name' => $request->name,
             'desc' => $request->desc,
             'category_id' => $request->category_id,
-            'image' => $product->image, // keep existing if not updated
         ]);
 
-        return response()->json($product);
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('products', 'public');
+                $product->images()->create(['path' => $path]);
+            }
+        }
+
+        return response()->json($product->load('images'));
     }
 
-    // Admin: delete product
+    // Admin: delete product and all related images
     public function destroy(Product $product)
     {
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+        foreach ($product->images as $image) {
+            Storage::disk('public')->delete($image->path);
+            $image->delete();
         }
 
         $product->delete();
 
-        return response()->json(['message' => 'Product deleted succefully']);
+        return response()->json(['message' => 'Product deleted successfully']);
     }
 }
