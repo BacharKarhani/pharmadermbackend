@@ -37,7 +37,7 @@ class WishlistController extends Controller
     
         $wishlist->delete();
     
-        return response()->json(['message' => 'Product removed from wishlist successfully.']);
+        return response()->json(['message' => 'Product removed successfully.']);
     }
     
 }
