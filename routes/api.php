@@ -49,3 +49,12 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::put('/products/{product}', [ProductController::class, 'update']);
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
 });
+
+
+use App\Http\Controllers\WishlistController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/wishlist', [WishlistController::class, 'index']);
+    Route::post('/wishlist', [WishlistController::class, 'store']);
+    Route::delete('/wishlist/{product_id}', [WishlistController::class, 'destroy']);
+});
