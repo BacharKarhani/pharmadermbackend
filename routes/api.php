@@ -58,3 +58,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/wishlist', [WishlistController::class, 'store']);
     Route::delete('/wishlist/{product_id}', [WishlistController::class, 'destroy']);
 });
+
+
+use App\Http\Controllers\CartController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart', [CartController::class, 'store']);
+    Route::put('/cart/{product_id}', [CartController::class, 'update']);
+    Route::delete('/cart/{product_id}', [CartController::class, 'destroy']);
+});

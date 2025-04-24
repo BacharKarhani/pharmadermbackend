@@ -8,22 +8,41 @@ class WishlistController extends Controller
 {
     public function index(Request $request)
     {
-        return $request->user()->wishlist()->with('product')->get();
+        $wishlist = $request->user()->wishlist()->with('product')->get();
+    
+        if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
+            $wishlist->each(function ($item) {
+                $item->product->makeHidden('buying_price');
+            });
+        }
+    
+        return $wishlist;
     }
+    
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-        ]);
+{
+    $request->validate([
+        'product_id' => 'required|exists:products,id',
+    ]);
 
-        $wishlist = Wishlist::firstOrCreate([
-            'user_id' => $request->user()->id,
-            'product_id' => $request->product_id,
-        ]);
+    $wishlist = Wishlist::firstOrCreate([
+        'user_id' => $request->user()->id,
+        'product_id' => $request->product_id,
+    ]);
 
-        return response()->json($wishlist->load('product'), 201);
+    $wishlist->load('product');
+
+    // Hide buying_price if user is not admin
+    if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
+        $wishlist->product->makeHidden('buying_price');
     }
+
+    return response()->json([
+        'message' => 'Product added to wishlist',
+        'wishlist' => $wishlist
+    ], 201);
+}
 
     public function destroy(Request $request, $product_id)
     {
