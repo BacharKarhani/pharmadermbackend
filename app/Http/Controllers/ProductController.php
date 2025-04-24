@@ -30,7 +30,8 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'buying_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
-            'images.*' => 'nullable|image|max:2048'
+            'images.*' => 'nullable|image|max:2048',
+            'quantity' => 'required|integer|min:0',
         ]);
 
         $product = Product::create([
@@ -39,6 +40,8 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'buying_price' => $request->buying_price,
             'selling_price' => $request->selling_price,
+            'quantity' => $request->quantity,
+
         ]);
 
         if ($request->hasFile('images')) {
@@ -60,7 +63,9 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'buying_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
-            'images.*' => 'nullable|image|max:2048'
+            'images.*' => 'nullable|image|max:2048',
+            'quantity' => 'required|integer|min:0',
+
         ]);
 
         $product->update([
@@ -69,6 +74,8 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'buying_price' => $request->buying_price,
             'selling_price' => $request->selling_price,
+            'quantity' => $request->quantity,
+
         ]);
 
         if ($request->hasFile('images')) {
