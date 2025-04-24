@@ -10,16 +10,31 @@ use Illuminate\Support\Facades\Storage;
 class ProductController extends Controller
 {
     // Public: list all products
-    public function index()
+    public function index(Request $request)
     {
-        return Product::with(['category', 'images'])->get();
+        $products = Product::with(['category', 'images'])->get();
+
+        // Only show buying_price if user is admin
+        if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
+            $products->makeHidden('buying_price');
+        }
+
+        return $products;
     }
 
-    // Public: show single product
-    public function show(Product $product)
+
+    public function show(Request $request, Product $product)
     {
-        return $product->load(['category', 'images']);
+        $product->load(['category', 'images']);
+
+        // Only show buying_price if user is admin
+        if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
+            $product->makeHidden('buying_price');
+        }
+
+        return $product;
     }
+
 
     // Admin: create product with multiple images
     public function store(Request $request)
