@@ -9,12 +9,18 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return Category::all();
+        return response()->json([
+            'success' => true,
+            'categories' => Category::all()
+        ]);
     }
 
     public function show(Category $category)
     {
-        return response()->json($category);
+        return response()->json([
+            'success' => true,
+            'category' => $category
+        ]);
     }
 
     public function store(Request $request)
@@ -27,7 +33,11 @@ class CategoryController extends Controller
             'name' => $request->name
         ]);
 
-        return response()->json($category, 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Category created successfully',
+            'category' => $category
+        ], 201);
     }
 
     public function update(Request $request, Category $category)
@@ -38,13 +48,20 @@ class CategoryController extends Controller
 
         $category->update(['name' => $request->name]);
 
-        return response()->json($category);
+        return response()->json([
+            'success' => true,
+            'message' => 'Category updated successfully',
+            'category' => $category
+        ]);
     }
 
     public function destroy(Category $category)
     {
         $category->delete();
 
-        return response()->json(['message' => 'Category deleted']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Category deleted successfully'
+        ]);
     }
 }

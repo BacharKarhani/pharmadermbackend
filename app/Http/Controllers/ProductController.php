@@ -14,27 +14,29 @@ class ProductController extends Controller
     {
         $products = Product::with(['category', 'images'])->get();
 
-        // Only show buying_price if user is admin
         if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
             $products->makeHidden('buying_price');
         }
 
-        return $products;
+        return response()->json([
+            'success' => true,
+            'products' => $products
+        ]);
     }
-
 
     public function show(Request $request, Product $product)
     {
         $product->load(['category', 'images']);
 
-        // Only show buying_price if user is admin
         if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
             $product->makeHidden('buying_price');
         }
 
-        return $product;
+        return response()->json([
+            'success' => true,
+            'product' => $product
+        ]);
     }
-
 
     // Admin: create product with multiple images
     public function store(Request $request)
@@ -56,7 +58,6 @@ class ProductController extends Controller
             'buying_price' => $request->buying_price,
             'selling_price' => $request->selling_price,
             'quantity' => $request->quantity,
-
         ]);
 
         if ($request->hasFile('images')) {
@@ -66,7 +67,11 @@ class ProductController extends Controller
             }
         }
 
-        return response()->json($product->load('images'), 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Product created successfully',
+            'product' => $product->load('images')
+        ], 201);
     }
 
     // Admin: update product and optionally add new images
@@ -80,7 +85,6 @@ class ProductController extends Controller
             'selling_price' => 'required|numeric|min:0',
             'images.*' => 'nullable|image|max:2048',
             'quantity' => 'required|integer|min:0',
-
         ]);
 
         $product->update([
@@ -90,7 +94,6 @@ class ProductController extends Controller
             'buying_price' => $request->buying_price,
             'selling_price' => $request->selling_price,
             'quantity' => $request->quantity,
-
         ]);
 
         if ($request->hasFile('images')) {
@@ -100,7 +103,11 @@ class ProductController extends Controller
             }
         }
 
-        return response()->json($product->load('images'));
+        return response()->json([
+            'success' => true,
+            'message' => 'Product updated successfully',
+            'product' => $product->load('images')
+        ]);
     }
 
     // Admin: delete product and all related images
@@ -113,6 +120,9 @@ class ProductController extends Controller
 
         $product->delete();
 
-        return response()->json(['message' => 'Product deleted successfully']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Product deleted successfully'
+        ]);
     }
 }

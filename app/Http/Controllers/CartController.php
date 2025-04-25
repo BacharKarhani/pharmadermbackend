@@ -22,6 +22,7 @@ class CartController extends Controller
         $total = $subtotal + $shipping;
 
         return response()->json([
+            'success' => true,
             'items' => $items,
             'summary' => [
                 'subtotal' => number_format($subtotal, 2),
@@ -30,9 +31,6 @@ class CartController extends Controller
             ],
         ]);
     }
-
-
-
 
     public function store(Request $request)
     {
@@ -51,20 +49,17 @@ class CartController extends Controller
 
         $cartItem->load('product');
 
-        // Hide buying_price if user is not admin
         if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
             $cartItem->product->makeHidden('buying_price');
         }
 
         return response()->json([
+            'success' => true,
             'message' => 'Product added to cart',
             'cart' => $cartItem
         ], 201);
     }
 
-
-
-    // Update product quantity
     public function update(Request $request, $product_id)
     {
         $request->validate([
@@ -73,14 +68,21 @@ class CartController extends Controller
 
         $cart = Cart::where('user_id', $request->user()->id)
             ->where('product_id', $product_id)
-            ->firstOrFail();
+            ->first();
+
+        if (! $cart) {
+            return response()->json(['success' => false, 'message' => 'Product not found in cart'], 404);
+        }
 
         $cart->update(['quantity' => $request->quantity]);
 
-        return response()->json(['message' => 'Cart updated', 'cart' => $cart]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Cart updated',
+            'cart' => $cart
+        ]);
     }
 
-    // Remove product from cart
     public function destroy(Request $request, $product_id)
     {
         $cart = Cart::where('user_id', $request->user()->id)
@@ -88,11 +90,17 @@ class CartController extends Controller
             ->first();
 
         if (! $cart) {
-            return response()->json(['message' => 'Product not found in cart'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Product not found in cart'
+            ], 404);
         }
 
         $cart->delete();
 
-        return response()->json(['message' => 'Product removed from cart']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Product removed from cart'
+        ]);
     }
 }
