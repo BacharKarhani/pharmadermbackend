@@ -44,6 +44,7 @@ use App\Http\Controllers\ProductController;
 // Public: anyone can view products
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
+Route::get('/products/{product}/related', [ProductController::class, 'related']);
 
 // Admin: auth + role check
 Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {

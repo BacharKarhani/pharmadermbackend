@@ -125,4 +125,23 @@ class ProductController extends Controller
             'message' => 'Product deleted successfully'
         ]);
     }
+
+    public function related(Product $product)
+{
+    $related = Product::where('category_id', $product->category_id)
+        ->where('id', '!=', $product->id)
+        ->with(['category', 'images'])
+        ->get();
+
+    // Hide buying_price for non-admins
+    if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
+        $related->makeHidden('buying_price');
+    }
+
+    return response()->json([
+        'success' => true,
+        'related_products' => $related
+    ]);
+}
+
 }
