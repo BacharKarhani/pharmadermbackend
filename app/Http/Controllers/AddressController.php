@@ -12,6 +12,16 @@ class AddressController extends Controller
         return $request->user()->addresses()->with('zone')->get();
     }
 
+    public function show(Request $request, Address $address)
+    {
+        if ($address->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        return $address->load('zone');
+    }
+
+
     public function store(Request $request)
     {
         $request->validate([

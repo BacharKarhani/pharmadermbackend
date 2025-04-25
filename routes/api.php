@@ -34,6 +34,8 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::put('/categories/{category}', [CategoryController::class, 'update']);
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+    Route::get('/categories/{category}', [CategoryController::class, 'show']);
+
 });
 
 
@@ -76,6 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/addresses', [AddressController::class, 'store']);
     Route::put('/addresses/{address}', [AddressController::class, 'update']);
     Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
+    Route::get('/addresses/{address}', [AddressController::class, 'show']);
 });
 
 

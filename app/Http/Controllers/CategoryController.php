@@ -12,6 +12,11 @@ class CategoryController extends Controller
         return Category::all();
     }
 
+    public function show(Category $category)
+    {
+        return response()->json($category);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
