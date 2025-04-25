@@ -86,3 +86,7 @@ Route::middleware('auth:sanctum')->group(function () {
 use App\Http\Controllers\ZoneController;
 
 Route::get('/zones', [ZoneController::class, 'index']);
+
+use App\Http\Controllers\CheckoutController;
+
+Route::middleware('auth:sanctum')->post('/checkout', [CheckoutController::class, 'store']);
