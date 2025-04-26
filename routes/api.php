@@ -101,3 +101,11 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 });
 
 
+
+Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
+    Route::get('/users/search-by-name', [AuthController::class, 'searchUserByName']);
+    Route::put('/users/{userId}/promote', [AuthController::class, 'promoteToAdmin']);
+    
+});
+
+

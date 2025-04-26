@@ -85,4 +85,61 @@ class AuthController extends Controller
             'message' => 'Logged out successfully'
         ]);
     }
+
+    /**
+     * Admin: Search user by first and last name
+     */
+    public function searchUserByName(Request $request)
+    {
+        $request->validate([
+            'fname' => 'required|string',
+            'lname' => 'required|string',
+        ]);
+
+        $user = User::where('fname', 'like', '%' . $request->query('fname') . '%')
+            ->where('lname', 'like', '%' . $request->query('lname') . '%')
+            ->first();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'user' => $user
+        ]);
+    }
+
+
+
+    public function promoteToAdmin(Request $request, $userId)
+    {
+        if ($request->user()->role_id !== 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Only admins can promote users.'
+            ], 403);
+        }
+
+        $user = User::find($userId);
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        $user->role_id = 1;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User promoted to admin successfully.',
+            'user' => $user
+        ]);
+    }
 }
