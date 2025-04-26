@@ -98,6 +98,8 @@ use App\Http\Controllers\OrderController;
 Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::get('/orders', [OrderController::class, 'indexPaginated']);
     Route::get('/orders/{order_id}', [OrderController::class, 'show']);
+    Route::put('/orders/{order_id}/update-status', [OrderController::class, 'updateStatus']); // <-- ADD THIS
+
 });
 
 
@@ -105,7 +107,8 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::get('/users/search-by-name', [AuthController::class, 'searchUserByName']);
     Route::put('/users/{userId}/promote', [AuthController::class, 'promoteToAdmin']);
-    
+    Route::get('/orders/{order_id}/profit', [OrderController::class, 'getOrderProfit']); // ✅ Profit API
+
 });
 
 
