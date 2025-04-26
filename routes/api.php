@@ -24,6 +24,7 @@ use App\Http\Controllers\AuthController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+Route::get('/test', [AuthController::class, 'test']);
 
 
 use App\Http\Controllers\CategoryController;
