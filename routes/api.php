@@ -90,3 +90,14 @@ Route::get('/zones', [ZoneController::class, 'index']);
 use App\Http\Controllers\CheckoutController;
 
 Route::middleware('auth:sanctum')->post('/checkout', [CheckoutController::class, 'store']);
+
+use App\Http\Controllers\OrderController;
+
+
+
+Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
+    Route::get('/orders', [OrderController::class, 'indexPaginated']);
+    Route::get('/orders/{order_id}', [OrderController::class, 'show']);
+});
+
+

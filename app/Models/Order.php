@@ -9,8 +9,8 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'order_id'; // Important because we set 'order_id' manually
-    public $timestamps = false; // We use custom timestamps (date_added, date_modified)
+    protected $primaryKey = 'order_id'; // Important because you use order_id not id
+    public $timestamps = false; // You manually control date_added, date_modified
 
     protected $fillable = [
         'user_id',
@@ -26,19 +26,16 @@ class Order extends Model
         'date_modified',
     ];
 
-    // User who placed the order
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Address for delivery
     public function address()
     {
         return $this->belongsTo(Address::class);
     }
 
-    // Products inside this order
     public function orderProducts()
     {
         return $this->hasMany(OrderProduct::class, 'order_id', 'order_id');
