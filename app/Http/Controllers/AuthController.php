@@ -142,4 +142,9 @@ class AuthController extends Controller
             'user' => $user
         ]);
     }
+
+    public function test()
+    {
+        return response()->json(['message' => 'hello boss']);
+    }
 }
