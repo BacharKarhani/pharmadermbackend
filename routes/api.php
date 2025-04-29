@@ -113,3 +113,12 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 });
 
 
+use App\Http\Controllers\PaymentController;
+
+// Whish Payment Callbacks
+Route::get('/payment/whish/callback/success/{order_id}', [PaymentController::class, 'whishCallbackSuccess'])->name('api.whish.callback.success');
+Route::get('/payment/whish/callback/failure/{order_id}', [PaymentController::class, 'whishCallbackFailure'])->name('api.whish.callback.failure');
+
+// Whish Payment Redirects
+Route::get('/payment/whish/redirect/success/{order_id}', [PaymentController::class, 'whishRedirectSuccess'])->name('api.whish.redirect.success');
+Route::get('/payment/whish/redirect/failure/{order_id}', [PaymentController::class, 'whishRedirectFailure'])->name('api.whish.redirect.failure');
