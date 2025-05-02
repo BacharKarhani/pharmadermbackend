@@ -22,9 +22,11 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 // Public routes
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/trending', [ProductController::class, 'trending']); 
 Route::get('/products/{product}', [ProductController::class, 'show']);
 Route::get('/products/{product}/related', [ProductController::class, 'related']);
 Route::get('/zones', [ZoneController::class, 'index']);
+
 
 // Authenticated user routes
 Route::middleware('auth:sanctum')->group(function () {

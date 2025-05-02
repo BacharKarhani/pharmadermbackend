@@ -47,8 +47,9 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'buying_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
-            'images.*' => 'nullable|image|max:2048',
             'quantity' => 'required|integer|min:0',
+            'is_trending' => 'sometimes|boolean',
+            'images.*' => 'nullable|image|max:2048',
         ]);
 
         $product = Product::create([
@@ -58,6 +59,7 @@ class ProductController extends Controller
             'buying_price' => $request->buying_price,
             'selling_price' => $request->selling_price,
             'quantity' => $request->quantity,
+            'is_trending' => $request->has('is_trending') ? $request->is_trending : false,
         ]);
 
         if ($request->hasFile('images')) {
@@ -83,8 +85,9 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'buying_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
-            'images.*' => 'nullable|image|max:2048',
             'quantity' => 'required|integer|min:0',
+            'is_trending' => 'sometimes|boolean',
+            'images.*' => 'nullable|image|max:2048',
         ]);
 
         $product->update([
@@ -94,6 +97,7 @@ class ProductController extends Controller
             'buying_price' => $request->buying_price,
             'selling_price' => $request->selling_price,
             'quantity' => $request->quantity,
+            'is_trending' => $request->has('is_trending') ? $request->is_trending : $product->is_trending,
         ]);
 
         if ($request->hasFile('images')) {
@@ -127,21 +131,36 @@ class ProductController extends Controller
     }
 
     public function related(Product $product)
-{
-    $related = Product::where('category_id', $product->category_id)
-        ->where('id', '!=', $product->id)
-        ->with(['category', 'images'])
-        ->get();
+    {
+        $related = Product::where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->with(['category', 'images'])
+            ->get();
 
-    // Hide buying_price for non-admins
-    if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
-        $related->makeHidden('buying_price');
+        if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
+            $related->makeHidden('buying_price');
+        }
+
+        return response()->json([
+            'success' => true,
+            'related_products' => $related
+        ]);
     }
 
-    return response()->json([
-        'success' => true,
-        'related_products' => $related
-    ]);
-}
+    // Get all trending products
+    public function trending()
+    {
+        $products = Product::with(['category', 'images'])
+            ->where('is_trending', true)
+            ->get();
 
+        if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
+            $products->makeHidden('buying_price');
+        }
+
+        return response()->json([
+            'success' => true,
+            'trending_products' => $products
+        ]);
+    }
 }
