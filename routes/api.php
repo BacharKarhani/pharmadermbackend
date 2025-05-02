@@ -109,3 +109,6 @@ Route::get('/products/trending', [ProductController::class, 'trending']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
 Route::get('/products/{product}/related', [ProductController::class, 'related']);
 Route::get('/zones', [ZoneController::class, 'index']);
+
+use App\Http\Controllers\ContactController;
+Route::post('/contact', [ContactController::class, 'store']);
