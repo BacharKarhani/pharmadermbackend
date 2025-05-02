@@ -127,4 +127,33 @@ class OrderController extends Controller
             'total_profit' => number_format($totalProfit, 2)
         ]);
     }
+
+    // Get orders for the authenticated user with optional status filter
+public function myOrders(Request $request)
+{
+    $user = $request->user();
+
+    $query = Order::with('address', 'orderProducts.product')
+        ->where('user_id', $user->id);
+
+    // Optional status filter
+    if ($request->filled('status')) {
+        $query->where('order_status', $request->status);
+    }
+
+    $orders = $query->orderByDesc('date_added')->paginate(10);
+
+    if ($orders->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No orders found.'
+        ]);
+    }
+
+    return response()->json([
+        'success' => true,
+        'orders' => $orders
+    ]);
+}
+
 }

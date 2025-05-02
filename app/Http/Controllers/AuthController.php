@@ -147,4 +147,61 @@ class AuthController extends Controller
     {
         return response()->json(['message' => 'hello boss']);
     }
+
+    public function profile(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'user' => $request->user()
+        ]);
+    }
+
+    /**
+     * Change logged-in user's password
+     */
+    public function changePassword(Request $request)
+    {
+        // Manual validation without 'confirmed' rule
+        $request->validate([
+            'old_password' => 'required|string',
+            'new_password' => 'required|string|min:6',
+            'new_password_confirmation' => 'required|string|min:6',
+        ]);
+    
+        $user = $request->user();
+    
+        // Check if new password matches confirmation manually
+        if ($request->new_password !== $request->new_password_confirmation) {
+            return response()->json([
+                'success' => false,
+                'message' => 'New password and confirmation do not match.'
+            ], 422);
+        }
+    
+        // Check old password is correct
+        if (! Hash::check($request->old_password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Old password is incorrect.'
+            ], 403);
+        }
+    
+        // Prevent using the same password again
+        if (Hash::check($request->new_password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'New password cannot be the same as the old password.'
+            ], 422);
+        }
+    
+        // Save new password
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Password changed successfully.'
+        ]);
+    }
+    
 }
