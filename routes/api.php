@@ -13,27 +13,32 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 
-// Auth routes
+// ===========================
+// Public Auth Routes
+// ===========================
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/test', [AuthController::class, 'test']);
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
-// Public routes
+// ===========================
+// Public Product & General Routes
+// ===========================
 Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/trending', [ProductController::class, 'trending']); 
-Route::get('/products/{product}', [ProductController::class, 'show']);
-Route::get('/products/{product}/related', [ProductController::class, 'related']);
-Route::get('/zones', [ZoneController::class, 'index']);
 
 
-// Authenticated user routes
+// ===========================
+// Authenticated User Routes
+// ===========================
 Route::middleware('auth:sanctum')->group(function () {
-    // User data
+    Route::get('/products/recently-viewed', [ProductController::class, 'recentlyViewed']);
+
+    // User Profile
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
     // Wishlist
     Route::get('/wishlist', [WishlistController::class, 'index']);
@@ -56,12 +61,17 @@ Route::middleware('auth:sanctum')->group(function () {
     // Checkout
     Route::post('/checkout', [CheckoutController::class, 'store']);
 
-    // Users see their own orders
+    // Orders
     Route::get('/orders/my', [OrderController::class, 'myOrders']);
+
+    // Recently Viewed Products ✅ FIXED
 });
 
-// Admin-only routes
+// ===========================
+// Admin-Only Routes
+// ===========================
 Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
+
     // Categories
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::put('/categories/{category}', [CategoryController::class, 'update']);
@@ -73,25 +83,29 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::put('/products/{product}', [ProductController::class, 'update']);
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
 
-    // Admin order management
+    // Orders
     Route::get('/orders', [OrderController::class, 'indexPaginated']);
     Route::get('/orders/{order_id}', [OrderController::class, 'show']);
     Route::put('/orders/{order_id}/update-status', [OrderController::class, 'updateStatus']);
     Route::get('/orders/{order_id}/profit', [OrderController::class, 'getOrderProfit']);
 
-    // Admin user management
+    // User Management
     Route::get('/users/search-by-name', [AuthController::class, 'searchUserByName']);
     Route::put('/users/{userId}/promote', [AuthController::class, 'promoteToAdmin']);
 });
 
-// Whish Payment (open for callbacks)
+// ===========================
+// Whish Payment (Open Routes)
+// ===========================
 Route::get('/payment/whish/callback/success/{order_id}', [PaymentController::class, 'whishCallbackSuccess'])->name('api.whish.callback.success');
 Route::get('/payment/whish/callback/failure/{order_id}', [PaymentController::class, 'whishCallbackFailure'])->name('api.whish.callback.failure');
 Route::get('/payment/whish/redirect/success/{order_id}', [PaymentController::class, 'whishRedirectSuccess'])->name('api.whish.redirect.success');
 Route::get('/payment/whish/redirect/failure/{order_id}', [PaymentController::class, 'whishRedirectFailure'])->name('api.whish.redirect.failure');
 
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/profile', [AuthController::class, 'profile']);
-    Route::post('/change-password', [AuthController::class, 'changePassword']);
-});
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/trending', [ProductController::class, 'trending']);
+
+Route::get('/products/{product}', [ProductController::class, 'show']);
+Route::get('/products/{product}/related', [ProductController::class, 'related']);
+Route::get('/zones', [ZoneController::class, 'index']);

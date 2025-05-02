@@ -53,6 +53,11 @@ class User extends Authenticatable
 
     public function orders()
     {
-        return $this->hasMany(Order::class); // ➔ NEW!
+        return $this->hasMany(Order::class);
+    }
+
+    public function recentlyViewed()
+    {
+        return $this->hasMany(RecentlyViewed::class, 'user_id', 'id');
     }
 }

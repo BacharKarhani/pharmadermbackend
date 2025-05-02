@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\RecentlyViewed;
 
 class ProductController extends Controller
 {
@@ -28,8 +29,18 @@ class ProductController extends Controller
     {
         $product->load(['category', 'images']);
 
-        if (!auth('sanctum')->user() || auth('sanctum')->user()->role_id !== 1) {
+        // Hide buying price from non-admins or guests
+        $user = auth('sanctum')->user();
+        if (!$user || $user->role_id !== 1) {
             $product->makeHidden('buying_price');
+        }
+
+        // Log to recently_viewed if user is logged in
+        if ($user) {
+            \App\Models\RecentlyViewed::updateOrCreate(
+                ['user_id' => $user->id, 'product_id' => $product->id],
+                ['updated_at' => now()]
+            );
         }
 
         return response()->json([
@@ -37,6 +48,7 @@ class ProductController extends Controller
             'product' => $product
         ]);
     }
+
 
     // Admin: create product with multiple images
     public function store(Request $request)
@@ -161,6 +173,36 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'trending_products' => $products
+        ]);
+    }
+
+    public function recentlyViewed(Request $request)
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json([
+                'success' => true,
+                'recently_viewed' => []
+            ]);
+        }
+
+        $productIds = \App\Models\RecentlyViewed::where('user_id', $user->id)
+            ->orderByDesc('updated_at')
+            ->limit(10)
+            ->pluck('product_id');
+
+        $products = Product::with(['category', 'images'])
+            ->whereIn('id', $productIds)
+            ->get();
+
+        if ($user->role_id !== 1) {
+            $products->makeHidden('buying_price');
+        }
+
+        return response()->json([
+            'success' => true,
+            'recently_viewed' => $products
         ]);
     }
 }
