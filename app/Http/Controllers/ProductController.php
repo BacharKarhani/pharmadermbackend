@@ -58,37 +58,43 @@ class ProductController extends Controller
             'desc' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
             'buying_price' => 'required|numeric|min:0',
-            'selling_price' => 'required|numeric|min:0',
+            'regular_price' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0|max:100',
             'quantity' => 'required|integer|min:0',
             'is_trending' => 'sometimes|boolean',
             'images.*' => 'nullable|image|max:2048',
         ]);
-
+    
+        $regularPrice = $request->regular_price;
+        $discount = $request->discount ?? 0;
+        $sellingPrice = $regularPrice - ($regularPrice * $discount / 100);
+    
         $product = Product::create([
             'name' => $request->name,
             'desc' => $request->desc,
             'category_id' => $request->category_id,
             'buying_price' => $request->buying_price,
-            'selling_price' => $request->selling_price,
+            'regular_price' => $regularPrice,
+            'discount' => $discount,
+            'selling_price' => $sellingPrice,
             'quantity' => $request->quantity,
             'is_trending' => $request->has('is_trending') ? $request->is_trending : false,
         ]);
-
+    
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('products', 'public');
                 $product->images()->create(['path' => $path]);
             }
         }
-
+    
         return response()->json([
             'success' => true,
             'message' => 'Product created successfully',
             'product' => $product->load('images')
         ], 201);
     }
-
-    // Admin: update product and optionally add new images
+    
     public function update(Request $request, Product $product)
     {
         $request->validate([
@@ -96,35 +102,43 @@ class ProductController extends Controller
             'desc' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
             'buying_price' => 'required|numeric|min:0',
-            'selling_price' => 'required|numeric|min:0',
+            'regular_price' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0|max:100',
             'quantity' => 'required|integer|min:0',
             'is_trending' => 'sometimes|boolean',
             'images.*' => 'nullable|image|max:2048',
         ]);
-
+    
+        $regularPrice = $request->regular_price;
+        $discount = $request->discount ?? 0;
+        $sellingPrice = $regularPrice - ($regularPrice * $discount / 100);
+    
         $product->update([
             'name' => $request->name,
             'desc' => $request->desc,
             'category_id' => $request->category_id,
             'buying_price' => $request->buying_price,
-            'selling_price' => $request->selling_price,
+            'regular_price' => $regularPrice,
+            'discount' => $discount,
+            'selling_price' => $sellingPrice,
             'quantity' => $request->quantity,
             'is_trending' => $request->has('is_trending') ? $request->is_trending : $product->is_trending,
         ]);
-
+    
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('products', 'public');
                 $product->images()->create(['path' => $path]);
             }
         }
-
+    
         return response()->json([
             'success' => true,
             'message' => 'Product updated successfully',
             'product' => $product->load('images')
         ]);
     }
+    
 
     // Admin: delete product and all related images
     public function destroy(Product $product)

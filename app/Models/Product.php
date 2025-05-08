@@ -18,6 +18,8 @@ class Product extends Model
         'selling_price',
         'quantity',
         'is_trending',
+        'regular_price',
+        'discount',
     ];
 
     public function category()
